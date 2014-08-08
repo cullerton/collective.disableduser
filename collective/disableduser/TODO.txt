@@ -1,0 +1,24 @@
+add tests
+
+    disableuser.py
+        enable_user
+        disable_user
+        is_disabled
+
+        create a test user
+            assert not is_disabled
+        disable
+            assert is_disabled
+        enable
+            assert not is_disabled
+
+    plugin
+
+move disabled_user_redirect to setting in ZMI or plone_control_panel
+
+git
+    new product
+        init
+    add my code
+
+am I initializing DisabledUser class correctly
