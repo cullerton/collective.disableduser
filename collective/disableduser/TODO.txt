@@ -17,8 +17,11 @@ add tests
 move disabled_user_redirect to setting in ZMI or plone_control_panel
 
 git
-    new product
-        init
     add my code
 
 am I initializing DisabledUser class correctly
+
+example usage
+    maybe in tests
+
+install/uninstall
