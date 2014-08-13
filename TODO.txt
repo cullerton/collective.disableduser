@@ -25,3 +25,7 @@ example usage
     maybe in tests
 
 install/uninstall
+
+set plugin to top of list (first)
+
+forget disabled_user_redirect in came_from
