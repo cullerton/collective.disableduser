@@ -2,8 +2,6 @@ from AccessControl.SecurityInfo import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins \
-    import IAuthenticationPlugin
-from Products.PluggableAuthService.interfaces.plugins \
     import IExtractionPlugin
 from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
 from Products.PluggableAuthService.utils import classImplements
@@ -14,6 +12,7 @@ import logging
 logger = logging.getLogger("collective.disableduser: plugin:")
 
 from collective.disableduser.disableduser import DisabledUser
+
 
 manage_addDisabledUserPluginForm = \
     PageTemplateFile(
@@ -44,12 +43,28 @@ class DisabledUserPlugin(BasePlugin):
         self._setId(id)
         self.title = title
 
+    # stole this from betahaus.emaillogin which was messing with me
+    def _get_username_from_email(self, login_email, get_all=False):
+        """Returns the username for a given email.
+           If no user found it returns None"""
+
+        emails = []
+        pas = self._getPAS()
+        mail_props = self.getProperty('mail_props', ('email',))
+        for mail_key in mail_props:
+            query = {mail_key: login_email, "exact_match": True}
+            for user in pas.searchUsers(**query):
+                if not get_all:
+                    return user['login']
+                emails.append(user['login'])
+        return emails
+        # return None
+
     security.declarePrivate('extractCredentials')
 
-    # IExtractionPlugin implementation
     def extractCredentials(self, request):
         """This is where our 'sts_receiver' code will end up"""
-        # logger.info("STSPlugin: extractCredentials: ")
+        # logger.info("DisabledUserPlugin: extractCredentials: ")
         redirect_url = "%s/disabled_user_redirect" % self.portal_url()
 
         # import pdb; pdb.set_trace()
@@ -57,12 +72,17 @@ class DisabledUserPlugin(BasePlugin):
         if 'form.submitted' in request.form:
 
             # logger.info(
-            #     "STSPlugin: extractCredentials: request.form: %s" %
+            #     "DisabledUserPlugin: extractCredentials: request.form: %s" %
             #     str(request.form))
             __ac_name = request.form.get('__ac_name')
-            # logger.info(
-            #     "STSPlugin: extractCredentials: __ac_name: %s" %
-            #     str(__ac_name))
+            logger.info(
+                "DisabledUserPlugin: extractCredentials: __ac_name: %s" %
+                str(__ac_name))
+            if '@' in __ac_name:
+                __ac_name = self._get_username_from_email(__ac_name)
+            logger.info(
+                "DisabledUserPlugin: extractCredentials: __ac_name: %s" %
+                str(__ac_name))
 
             try:
                 dtool = DisabledUser(self)
