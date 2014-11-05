@@ -6,7 +6,7 @@
     <body>
 
         <div metal:fill-slot="main">
-            This user is disabled.
+            <!-- This user is disabled. -->
         </div>
 
     </body>

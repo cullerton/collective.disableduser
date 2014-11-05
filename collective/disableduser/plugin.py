@@ -13,6 +13,7 @@ logger = logging.getLogger("collective.disableduser: plugin:")
 
 from collective.disableduser.disableduser import DisabledUser
 
+from Products.statusmessages.interfaces import IStatusMessage
 
 manage_addDisabledUserPluginForm = \
     PageTemplateFile(
@@ -66,8 +67,9 @@ class DisabledUserPlugin(BasePlugin):
         """This is where our 'sts_receiver' code will end up"""
         # logger.info("DisabledUserPlugin: extractCredentials: ")
         redirect_url = "%s/disabled_user_redirect" % self.portal_url()
-
-        # import pdb; pdb.set_trace()
+        redirect_message = u'Login failed. ' + \
+            'Both login name and password are case sensitive. ' + \
+            'Check that caps lock is not enabled.'
 
         if 'form.submitted' in request.form:
 
@@ -102,6 +104,8 @@ class DisabledUserPlugin(BasePlugin):
                             "extractCredentials: is_disabled: %s" %
                             str(is_disabled))
                         if is_disabled:
+                            messages = IStatusMessage(request)
+                            messages.add(redirect_message, type=u"error")
                             raise Redirect(redirect_url)
 
         return None
